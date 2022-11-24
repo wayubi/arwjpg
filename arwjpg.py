@@ -64,21 +64,35 @@ def parse_args(args):
         help='output extension; JPG or TIFF',
         required=False,
         default='JPG')
-    parser.add_argument('--use_camera_wb', 
+    parser.add_argument('--use_camera_wb',
         help='whether to use the as-shot white balance values', 
         required=False, 
         type=bool, 
         default=False)
-    parser.add_argument('--use_auto_wb', 
+    parser.add_argument('--use_auto_wb',
         help='whether to try automatically calculating the white balance', 
         required=False, 
         type=bool, 
         default=False)
-    parser.add_argument('--bright', 
+    parser.add_argument('--user_wb',
+        help='list of length 4 with white balance multipliers for each color (csv)', 
+        required=False, 
+        default=None)
+    parser.add_argument('--bright',
         help='brightness scaling', 
         required=False, 
         type=float, 
         default=1.0)
+    parser.add_argument('--exp_shift',
+        help='exposure shift in linear scale. Usable range from 0.25 (2-stop darken) to 8.0 (3-stop lighter).', 
+        required=False, 
+        type=float, 
+        default=1.0)
+    parser.add_argument('--exp_preserve_highlights',
+        help='preserve highlights when lightening the image with exp_shift. From 0.0 to 1.0 (full preservation).', 
+        required=False, 
+        type=float, 
+        default=0.0)
     parser.add_argument('--median_filter_passes', 
         help='number of median filter passes after demosaicing to reduce color artifacts', 
         required=False, 
@@ -169,10 +183,18 @@ def get_rawpy_params(args):
     output_color = get_value(output_colors, args.output_color, 'sRGB')
     fbdd_noise_reduction = get_value(fbdd_noise_reductions, args.fbdd_noise_reduction, 'Off')
 
+    if args.user_wb:
+        user_wb = [float(i) for i in args.user_wb.split(',')]
+    else:
+        user_wb = None
+
     return {
         'use_camera_wb': args.use_camera_wb,
         'use_auto_wb': args.use_auto_wb,
+        'user_wb': user_wb,
         'bright': args.bright,
+        'exp_shift': args.exp_shift,
+        'exp_preserve_highlights': args.exp_preserve_highlights,
         'median_filter_passes': args.median_filter_passes,
         'noise_thr': args.noise_thr,
         'dcb_enhance': args.dcb_enhance,

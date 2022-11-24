@@ -69,7 +69,16 @@ optional arguments:
   --use_auto_wb USE_AUTO_WB
                         whether to try automatically calculating the white
                         balance
+  --user_wb USER_WB
+                        list of length 4 with white balance multipliers
+                        for each color (csv)
   --bright BRIGHT       brightness scaling
+  --exp_shift EXP_SHIFT
+                        exposure shift in linear scale. Usable range from
+                        0.25 (2-stop darken) to 8.0 (3-stop lighter).
+  --exp_preserve_highlights EXP_PRESERVE_HIGHLIGHTS
+                        preserve highlights when lightening the image with
+                        exp_shift. From 0.0 to 1.0 (full preservation).
   --median_filter_passes MEDIAN_FILTER_PASSES
                         number of median filter passes after demosaicing to
                         reduce color artifacts
