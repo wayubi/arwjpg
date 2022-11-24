@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import rawpy
 import imageio
 import argparse
