@@ -50,7 +50,7 @@ def parse_args(args):
     """
     parser = argparse.ArgumentParser(description='Convert ARW to JPG')
     parser.add_argument('-s', '--source', 
-        help='source directory', 
+        help='source directory or file', 
         required=True)
     parser.add_argument('-t', '--target', 
         help='target directory', 
@@ -184,12 +184,16 @@ def get_rawpy_params(args):
         'output_bps': args.output_bps if args.output_bps == 8 or args.output_bps == 16 else 8
     }
 
-def get_arw_files(dir_path):
+def get_arw_files(dir_path, source_arw_file):
     """
     :param dir_path: Directory path where ARW files live.
+    :param source_arw_file: Source ARW file if single file.
     :return: A list of just the ARW file names.
     """
-    arw_files = [f for f in listdir(dir_path) if isfile(join(dir_path, f))]
+    if source_arw_file:
+        arw_files = [source_arw_file]
+    else:
+        arw_files = [f for f in listdir(dir_path) if isfile(join(dir_path, f))]
     return arw_files
 
 
@@ -215,13 +219,15 @@ def get_target_files(target_dir, files, ext='JPG'):
     return target_files
 
 
-def get_source_target_files(source_dir, target_dir, ext='JPG'):
+def get_source_target_files(source, target_dir, ext='JPG'):
     """
-    :param source_dir: ARW source directory path.
+    :param source: ARW source directory path or file.
     :param target_dir: JPG target directory path.
     :return: List of tuples. Each tuple has a source ARW and target JPG file path.
     """
-    arw_files = get_arw_files(source_dir)
+    source_dir = os.path.dirname(source)
+    source_arw_file = os.path.basename(source)
+    arw_files = get_arw_files(source_dir, source_arw_file)
     source_files = get_source_files(source_dir, arw_files)
     target_files = get_target_files(target_dir, arw_files, ext)
     tups = [(s, t) for s, t in zip(source_files, target_files)]

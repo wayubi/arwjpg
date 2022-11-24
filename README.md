@@ -24,18 +24,19 @@ conda remove --name arwjpg --all
 To use the `arwjpg.py` Python script, make sure you activate the `arwjpg` Conda environment as mentioned above. Then type in the following.
 
 ```bash
-python arwjpg.py -s [source_dir] -t [target_dir]
+python arwjpg.py -s [source] -t [target_dir]
 ```
 
 Note that
 
-* `source_dir` is a directory containing `ARW` (RAW) files.
+* `source` is either a directory containing `ARW` (RAW) files or a single `ARW` (RAW) file.
 * `target_dir` is the directory which `JPG` (JPEG) files will be placed.
 
 By default, `ALL` your CPUs will be used to convert `ARW` files to `JPG` files! An example on Windows is given as follows.
 
 ```bash
 python arwjpg.py -s C:/Users/super/Desktop/100MSDCF -t C:/Users/super/Desktop/JPG
+python arwjpg.py -s C:/Users/super/Desktop/100MSDCF/ABC123.ARW -t C:/Users/super/Desktop/JPG
 ```
 
 Here is the full set of options.
@@ -56,7 +57,7 @@ Convert ARW to JPG
 optional arguments:
   -h, --help            show this help message and exit
   -s SOURCE, --source SOURCE
-                        source directory
+                        source directory or file
   -t TARGET, --target TARGET
                         target directory
   -v VERBOSITY, --verbosity VERBOSITY
