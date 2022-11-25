@@ -6,8 +6,9 @@ import argparse
 import sys
 import os
 import multiprocessing
+import json
 
-from PIL import Image
+from PIL import Image, ImageEnhance
 from os import listdir
 from os.path import isfile, join
 from joblib import Parallel, delayed
@@ -25,7 +26,7 @@ def make_dir(dir_path):
         os.makedirs(dir_path)
 
 
-def convert_raw(source, target, rawpy_params):
+def convert_raw(source, target, rawpy_params, other_params):
     """
     Converts a ARW file to a JPG file.
     :param source: ARW file path.
@@ -36,11 +37,39 @@ def convert_raw(source, target, rawpy_params):
     try:
         with rawpy.imread(source) as raw:
             rgb = raw.postprocess(**rawpy_params)
-            Image.fromarray(rgb).save(target, quality=100, optimize=True)
+            image = Image.fromarray(rgb)
+            image = enhance_image(image, other_params)
+            image.save(target, quality=100, optimize=True)
             result = 1	
     except:
         result = 0
     return result
+
+
+def enhance_image(image, args):
+    """
+    Enhance Image with ImageEnhance
+    :param other_params: Input parameters
+    :return: Image object
+    """
+
+    if args['ie_color']:
+        filter = ImageEnhance.Color(image)
+        image = filter.enhance(args['ie_color'])
+
+    if args['ie_brightness']:
+        filter = ImageEnhance.Brightness(image)
+        image = filter.enhance(args['ie_brightness'])
+
+    if args['ie_contrast']:
+        filter = ImageEnhance.Contrast(image)
+        image = filter.enhance(args['ie_contrast'])
+
+    if args['ie_sharpness']:
+        filter = ImageEnhance.Sharpness(image)
+        image = filter.enhance(args['ie_sharpness'])
+
+    return image
 
 
 def parse_args(args):
@@ -129,6 +158,26 @@ def parse_args(args):
         required=False, 
         type=int, 
         default=8)
+    parser.add_argument('--ie_color', 
+        help='Creates an enhancement object for adjusting color in an image. A factor of 0.0 gives a black and white image, a factor of 1.0 gives the original image.', 
+        required=False, 
+        type=float, 
+        default=None)
+    parser.add_argument('--ie_brightness', 
+        help='Creates an enhancement object for adjusting brightness in an image. A factor of 0.0 gives a black image, factor 1.0 gives the original image.', 
+        required=False, 
+        type=float, 
+        default=None)
+    parser.add_argument('--ie_contrast', 
+        help='Creates an enhancement object for adjusting contrast in an image. A factor of 0.0 gives an solid grey image, factor 1.0 gives the original image.', 
+        required=False, 
+        type=float, 
+        default=None)
+    parser.add_argument('--ie_sharpness', 
+        help='Creates an enhancement object for adjusting the sharpness of an image. The factor 0.0 gives a blurred image, 1.0 gives the original image, and a factor of 2.0 gives a sharpened image.', 
+        required=False, 
+        type=float, 
+        default=None)
     return parser.parse_args(args)
 
 
@@ -206,6 +255,19 @@ def get_rawpy_params(args):
         'output_bps': args.output_bps if args.output_bps == 8 or args.output_bps == 16 else 8
     }
 
+def get_other_params(args):
+    """
+    Gets other parameters for postprocessing.
+    :param args: Arguments.
+    :return: Dictionary of parameters for other purposes.
+    """
+    return {
+        'ie_color': args.ie_color,
+        'ie_brightness': args.ie_brightness,
+        'ie_contrast': args.ie_contrast,
+        'ie_sharpness': args.ie_sharpness
+    }
+
 def get_arw_files(dir_path, source_arw_file):
     """
     :param dir_path: Directory path where ARW files live.
@@ -263,12 +325,13 @@ if __name__ == "__main__":
     make_dir(args.target)
 
     rawpy_params = get_rawpy_params(args)
+    other_params = get_other_params(args)
 
     ext = args.extension.upper() if args.extension.upper() == 'JPG' or args.extension.upper() == 'TIFF' else 'JPG'
     tups = get_source_target_files(args.source, args.target, ext)
     verbosity = args.verbosity
     n_jobs = multiprocessing.cpu_count()
-    results = Parallel(n_jobs=n_jobs, verbose=verbosity)(delayed(convert_raw)(tup[0], tup[1], rawpy_params) for tup in tqdm(tups))
+    results = Parallel(n_jobs=n_jobs, verbose=verbosity)(delayed(convert_raw)(tup[0], tup[1], rawpy_params, other_params) for tup in tqdm(tups))
     n_successes = sum(results)
     n_conversions = len(tups)
     print('{} of {} successful'.format(n_successes, n_conversions))

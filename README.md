@@ -101,6 +101,21 @@ optional arguments:
                         sRGB
   --output_bps OUTPUT_BPS
                         8 or 16
+  --ie_color IE_COLOR   Creates an enhancement object for adjusting color in
+                        an image. A factor of 0.0 gives a black and white image,
+                        a factor of 1.0 gives the original image.
+  --ie_brightness IE_BRIGHTNESS
+                        Creates an enhancement object for adjusting brightness in
+                        an image. A factor of 0.0 gives a black image, factor 1.0
+                        gives the original image.
+  --ie_contrast IE_CONTRAST
+                        Creates an enhancement object for adjusting contrast in
+                        an image. A factor of 0.0 gives an solid grey image,
+                        factor 1.0 gives the original image.
+  --ie_sharpness IE_SHARPNESS
+                        Creates an enhancement object for adjusting the sharpness of
+                        an image. The factor 0.0 gives a blurred image, 1.0 gives
+                        the original image, and a factor of 2.0 gives a sharpened image.
 ```
 
 # Citation
